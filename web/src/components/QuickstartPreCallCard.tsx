@@ -4,16 +4,24 @@ import { Loader2 } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
 
+import type { VendorOption } from "@/services/api";
+
 type QuickstartPreCallCardProps = {
 	isLoading: boolean;
 	error: string | null;
 	onStartConversation: () => void;
+	vendors?: VendorOption[];
+	selectedVendor?: string;
+	onVendorChange?: (vendor: string) => void;
 };
 
 export function QuickstartPreCallCard({
 	isLoading,
 	error,
 	onStartConversation,
+	vendors,
+	selectedVendor,
+	onVendorChange,
 }: QuickstartPreCallCardProps) {
 	return (
 		<div
@@ -24,12 +32,41 @@ export function QuickstartPreCallCard({
 			}}
 		>
 			<h1 className="text-[28px] font-medium leading-[1.2] text-white">
-				Translator Recipe
+				STT Vendors Recipe
 			</h1>
 			<p className="mt-[14px] text-sm font-medium leading-6 text-muted-foreground">
-				Speak in the source language; the agent translates and speaks it in the
-				target language. Set SOURCE_LANG / TARGET_LANG.
+				Talk to a voice agent whose STT is swappable across every Agora-supported
+				vendor. Runs key-less on managed Deepgram; set STT_VENDOR to swap.
 			</p>
+
+			{vendors && vendors.length > 0 ? (
+				<div className="mt-6 w-full text-left">
+					<label
+						htmlFor="stt-vendor"
+						className="text-xs font-medium uppercase tracking-wide text-muted-foreground"
+					>
+						STT vendor
+					</label>
+					<select
+						id="stt-vendor"
+						value={selectedVendor}
+						onChange={(e) => onVendorChange?.(e.target.value)}
+						disabled={isLoading}
+						className="mt-2 h-10 w-full rounded-lg border border-[#2b2b2b] bg-[#101010] px-3 text-sm text-white"
+					>
+						{vendors.map((v) => (
+							<option key={v.name} value={v.name}>
+								{v.name}
+								{v.needs_key ? "  (needs key)" : "  (key-less)"}
+							</option>
+						))}
+					</select>
+					<p className="mt-1 text-[11px] leading-4 text-muted-foreground">
+						Pick any vendor and start — “needs key” vendors require their env vars set
+						on the server, otherwise startup reports which are missing.
+					</p>
+				</div>
+			) : null}
 
 			<Button
 				onClick={onStartConversation}

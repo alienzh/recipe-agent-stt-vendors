@@ -81,6 +81,7 @@ class StartAgentRequest(BaseModel):
     channelName: str
     rtcUid: int
     userUid: int
+    vendor: Optional[str] = None   # which STT vendor to use (defaults to STT_VENDOR / deepgram)
     parameters: Optional[Dict[str, Any]] = None
 
 
@@ -140,6 +141,25 @@ async def get_config(
         raise _to_http_error(e)
 
 
+@router.get("/vendors")
+async def list_vendors():
+    """List the selectable STT vendors for the in-UI switcher."""
+    import vendors as registry
+    default = os.getenv("STT_VENDOR", "deepgram")
+    return {
+        "code": 0,
+        "data": {
+            "default": default,
+            "vendors": [
+                {"name": name, "needs_key": registry.needs_key(name),
+                 "required_env": registry.required_env(name)}
+                for name in registry.available()
+            ],
+        },
+        "msg": "success",
+    }
+
+
 @router.post("/startAgent")
 async def start_agent(request: StartAgentRequest):
     """Start the agent in a channel"""
@@ -158,6 +178,7 @@ async def start_agent(request: StartAgentRequest):
             channel_name=request.channelName,
             agent_uid=request.rtcUid,
             user_uid=request.userUid,
+            vendor=request.vendor,
             output_audio_codec=output_audio_codec,
         )
         return {"code": 0, "msg": "success", "data": result}

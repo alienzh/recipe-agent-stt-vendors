@@ -34,8 +34,22 @@ export async function getConfig(options?: { channel?: string; uid?: string | num
   return result.data
 }
 
-export async function startAgent(channelName: string, rtcUid: number, userUid: number): Promise<string> {
-  const payload = { channelName, rtcUid, userUid }
+export interface VendorOption {
+  name: string
+  needs_key: boolean
+  required_env: string[]
+}
+
+export async function getVendors(): Promise<{ default: string; vendors: VendorOption[] }> {
+  const response = await fetch(`${API_BASE_URL}/vendors`)
+  if (!response.ok) throw new Error(`HTTP ${response.status}`)
+  const result = await response.json()
+  if (result.code !== 0 || !result.data) throw new Error(result.msg || 'Failed to list vendors')
+  return result.data
+}
+
+export async function startAgent(channelName: string, rtcUid: number, userUid: number, vendor?: string): Promise<string> {
+  const payload = { channelName, rtcUid, userUid, vendor }
 
   const response = await fetch(`${API_BASE_URL}/startAgent`, {
     method: 'POST',
