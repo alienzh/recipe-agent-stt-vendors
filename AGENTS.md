@@ -2,13 +2,13 @@
 
 For coding agents working in `recipe-agent-stt-vendors`. This repository is the
 **STT vendors** recipe in the Agora Conversational AI recipes family: the STT leg
-is a data-driven switchboard over every A4.1 STT vendor, selected via `STT_VENDOR`.
+is a per-vendor switchboard (one readable `build_<vendor>` per vendor) selected via `STT_VENDOR`.
 
 ## System shape
 
 - **`server/`** — Python FastAPI agent backend (:8000). Owns Agora token
   generation and agent session lifecycle. The STT leg is built from the
-  data-driven registry in `server/src/vendors.py`; default vendor `deepgram` is
+  per-vendor builder registry in `server/src/vendors.py`; default vendor `deepgram` is
   Agora-managed (keyless). SDK: `agora-agents>=2.0.0` (`import agora_agent`).
 - **`web/`** — Next.js 16 / React 19 / TypeScript frontend (:3000): the
   `EventTimeline` and the annotated transcript.
