@@ -33,6 +33,7 @@ is a per-vendor switchboard (one readable `build_<vendor>` per vendor) selected 
 ## Event flags (backend)
 
 The agent is started with:
+- `audio_scenario = "chorus"` — web client → ultra-low-latency chorus profile
 - `data_channel = "rtm"` — routes all events over RTM
 - `enable_metrics = True` — per-stage latency metrics
 - `enable_error_message = True` — agent + message errors
