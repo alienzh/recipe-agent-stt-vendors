@@ -27,6 +27,7 @@ def test_start_constructs_real_agent_and_returns_shape(fake_env, monkeypatch):
     def fake_create_async_session(self, **kwargs):
         captured["channel"] = kwargs.get("channel")
         captured["remote_uids"] = kwargs.get("remote_uids")
+        captured["greeting"] = self.greeting
         return FakeSession()
 
     from agora_agent.agentkit import Agent as AgoraAgent
@@ -40,3 +41,44 @@ def test_start_constructs_real_agent_and_returns_shape(fake_env, monkeypatch):
     assert result["status"] == "started"
     assert captured["channel"] == "ch"
     assert captured["remote_uids"] == ["222"]
+    assert captured["greeting"] == "Hi! Talk to me and watch the event timeline light up."
+
+
+def test_start_passes_ares_keywords_to_agent(fake_env, monkeypatch):
+    agent = _fresh_agent_module()
+    captured = {}
+    monkeypatch.setenv(
+        "STT_KEYWORDS",
+        '["Agora", "Conversational AI", "RTC"]',
+    )
+
+    class FakeSession:
+        async def start(self):
+            return "test-agent-id"
+
+    def fake_create_async_session(self, **kwargs):
+        captured["stt"] = self.stt
+        captured["greeting"] = self.greeting
+        return FakeSession()
+
+    from agora_agent.agentkit import Agent as AgoraAgent
+    monkeypatch.setattr(AgoraAgent, "create_async_session", fake_create_async_session)
+
+    instance = agent.Agent()
+    asyncio.run(
+        instance.start(
+            channel_name="ch",
+            agent_uid=111,
+            user_uid=222,
+            vendor="ares",
+        )
+    )
+
+    assert captured["stt"] == {
+        "vendor": "ares",
+        "params": {"keywords": ["Agora", "Conversational AI", "RTC"]},
+    }
+    assert captured["greeting"] == (
+        "Hi! To test hotword recognition, say a sentence containing "
+        "Agora, Conversational AI, RTC, then check the transcript."
+    )

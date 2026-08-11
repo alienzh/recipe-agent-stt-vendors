@@ -40,6 +40,11 @@ export interface VendorOption {
   required_env: string[]
 }
 
+export interface StartAgentResult {
+  agentId: string
+  vendor?: string
+}
+
 export async function getVendors(): Promise<{ default: string; vendors: VendorOption[] }> {
   const response = await fetch(`${API_BASE_URL}/vendors`)
   if (!response.ok) throw new Error(`HTTP ${response.status}`)
@@ -48,7 +53,12 @@ export async function getVendors(): Promise<{ default: string; vendors: VendorOp
   return result.data
 }
 
-export async function startAgent(channelName: string, rtcUid: number, userUid: number, vendor?: string): Promise<string> {
+export async function startAgent(
+  channelName: string,
+  rtcUid: number,
+  userUid: number,
+  vendor?: string,
+): Promise<StartAgentResult> {
   const payload = { channelName, rtcUid, userUid, vendor }
 
   const response = await fetch(`${API_BASE_URL}/startAgent`, {
@@ -66,7 +76,16 @@ export async function startAgent(channelName: string, rtcUid: number, userUid: n
   if (result.code !== 0 || !result.data?.agent_id) {
     throw new Error(result.msg || 'Failed to start agent')
   }
-  return result.data.agent_id
+
+  const responseVendor =
+    typeof result.data.vendor === 'string' && result.data.vendor.trim()
+      ? result.data.vendor.trim()
+      : vendor?.trim() || undefined
+
+  return {
+    agentId: result.data.agent_id,
+    vendor: responseVendor,
+  }
 }
 
 export async function stopAgent(agentId: string): Promise<void> {

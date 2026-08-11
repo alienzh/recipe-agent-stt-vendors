@@ -81,6 +81,15 @@ class Agent:
         # without its credentials this raises ValueError listing the missing
         # environment variables — validated here in start(), not __init__.
         stt = build_vendor(selected)
+        stt_params = stt.to_config().get("params") or {}
+        keywords = stt_params.get("keywords") or []
+        greeting = self.greeting
+        if keywords:
+            sample = ", ".join(keywords[:3])
+            greeting = (
+                "Hi! To test hotword recognition, say a sentence containing "
+                f"{sample}, then check the transcript."
+            )
 
         llm = OpenAI(model="gpt-4o-mini")
         tts = MiniMaxTTS(model="speech_2_6_turbo", voice_id="English_captivating_female1")
@@ -96,7 +105,7 @@ class Agent:
 
         agora_agent = AgoraAgent(
             client=self.client,
-            greeting=self.greeting,
+            greeting=greeting,
             failure_message="Please wait a moment.",
             max_history=50,
             turn_detection={

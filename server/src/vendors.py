@@ -8,6 +8,7 @@ vendors that expose a model field.
 
 Add or change a vendor by editing its builder below + the REGISTRY line.
 """
+import json
 import os
 from typing import Callable, Dict, List, Optional, Tuple
 
@@ -24,6 +25,28 @@ def _model(env, default: str) -> str:
     return env.get("STT_MODEL") or default
 
 
+def _keywords(env) -> Optional[List[str]]:
+    """Parse the optional Ares hotword list from STT_KEYWORDS."""
+    raw = env.get("STT_KEYWORDS")
+    if raw is None or not raw.strip():
+        return None
+
+    error = "STT_KEYWORDS must be a JSON array of non-empty strings"
+    try:
+        value = json.loads(raw)
+    except json.JSONDecodeError as exc:
+        raise ValueError(error) from exc
+
+    if not isinstance(value, list) or any(
+        not isinstance(keyword, str) or not keyword.strip()
+        for keyword in value
+    ):
+        raise ValueError(error)
+
+    keywords = [keyword.strip() for keyword in value]
+    return keywords or None
+
+
 # --- one builder per vendor (these are the samples) -------------------------
 
 def build_deepgram(env):
@@ -32,8 +55,8 @@ def build_deepgram(env):
 
 
 def build_ares(env):
-    """Ares — Agora-managed, key-less by default (SDK defaults)."""
-    return AresSTT()
+    """Ares — Agora-managed, with optional STT_KEYWORDS hotwords."""
+    return AresSTT(keywords=_keywords(env))
 
 
 def build_assemblyai(env):

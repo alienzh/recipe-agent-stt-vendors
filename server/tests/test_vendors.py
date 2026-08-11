@@ -1,4 +1,8 @@
-import os, sys
+import os
+import sys
+
+import pytest
+
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), "..", "src"))
 import vendors as R  # noqa: E402
 
@@ -40,3 +44,39 @@ def test_byo_vendor_missing_creds_raises():
         assert R.required_env(name)[0] in str(e)
     else:
         raise AssertionError(f"{name} should raise when creds are absent")
+
+
+def test_ares_emits_keywords():
+    vendor = R.build_vendor(
+        "ares",
+        {"STT_KEYWORDS": '["Agora", "Conversational AI", "RTC"]'},
+    )
+
+    assert vendor.to_config() == {
+        "vendor": "ares",
+        "params": {"keywords": ["Agora", "Conversational AI", "RTC"]},
+    }
+
+
+def test_ares_omits_empty_keywords():
+    assert R.build_vendor("ares", {}).to_config() == {"vendor": "ares"}
+    assert R.build_vendor("ares", {"STT_KEYWORDS": "[]"}).to_config() == {
+        "vendor": "ares"
+    }
+
+
+@pytest.mark.parametrize(
+    "value",
+    [
+        "not-json",
+        '{"keyword": "Agora"}',
+        '["Agora", 7]',
+        '["Agora", ""]',
+    ],
+)
+def test_managed_hotword_vendors_reject_invalid_keywords(value):
+    with pytest.raises(
+        ValueError,
+        match="STT_KEYWORDS must be a JSON array of non-empty strings",
+    ):
+        R.build_vendor("ares", {"STT_KEYWORDS": value})

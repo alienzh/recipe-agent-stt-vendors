@@ -97,6 +97,7 @@ export default function LandingPage() {
 
 	const [vendors, setVendors] = useState<VendorOption[]>([]);
 	const [selectedVendor, setSelectedVendor] = useState<string>("");
+	const [activeSttVendor, setActiveSttVendor] = useState<string>();
 
 	useEffect(() => {
 		import("agora-rtc-react").catch(() => {});
@@ -121,7 +122,7 @@ export default function LandingPage() {
 			const config = await getConfig();
 			const appId = config.app_id;
 
-			const [agentIdResult, rtm] = await Promise.all([
+			const [agentResult, rtm] = await Promise.all([
 				startAgent(
 					config.channel_name,
 					Number(config.agent_uid),
@@ -143,13 +144,14 @@ export default function LandingPage() {
 			]);
 
 			setRtmClient(rtm);
+			setActiveSttVendor(agentResult?.vendor);
 			setAgoraData({
 				token: config.token,
 				uid: config.uid,
 				channel: config.channel_name,
 				appId: config.app_id,
 				agentUid: config.agent_uid,
-				agentId: agentIdResult,
+				agentId: agentResult?.agentId,
 			});
 			setShowConversation(true);
 		} catch (nextError) {
@@ -199,6 +201,7 @@ export default function LandingPage() {
 		rtmClient?.logout().catch((err) => console.error("RTM logout error:", err));
 		setRtmClient(null);
 		setAgoraData(null);
+		setActiveSttVendor(undefined);
 		setShowConversation(false);
 	};
 
@@ -240,6 +243,7 @@ export default function LandingPage() {
 									<AgoraProvider>
 										<ConversationComponent
 											agoraData={agoraData}
+											sttVendor={activeSttVendor}
 											rtmClient={rtmClient}
 											onTokenWillExpire={handleTokenWillExpire}
 											onEndConversation={handleEndConversation}

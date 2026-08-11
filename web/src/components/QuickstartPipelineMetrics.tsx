@@ -9,10 +9,11 @@ export type QuickstartAgentMetric = {
 
 type QuickstartPipelineMetricsProps = {
 	metrics: QuickstartAgentMetric[];
+	sttVendor?: string;
 };
 
 const PIPELINE = [
-	{ key: "stt", label: "Deepgram STT", metricTypes: ["stt", "asr"] },
+	{ key: "stt", label: "STT", metricTypes: ["stt", "asr"] },
 	{ key: "llm", label: "OpenAI LLM", metricTypes: ["llm", "mllm"] },
 	{ key: "tts", label: "MiniMax TTS", metricTypes: ["tts"] },
 ] as const;
@@ -21,8 +22,20 @@ function formatMetricName(name: string) {
 	return name.replace(/[_-]+/g, " ");
 }
 
+function formatVendorName(vendor: string) {
+	return vendor
+		.split(/[_-]+/)
+		.filter(Boolean)
+		.map((part) => {
+			const titleCased = `${part.charAt(0).toUpperCase()}${part.slice(1)}`;
+			return titleCased.replace(/ai$/i, "AI");
+		})
+		.join(" ");
+}
+
 export function QuickstartPipelineMetrics({
 	metrics,
+	sttVendor,
 }: QuickstartPipelineMetricsProps) {
 	const latestByType = new Map<string, QuickstartAgentMetric>();
 	for (const metric of metrics) {
@@ -38,6 +51,10 @@ export function QuickstartPipelineMetrics({
 				const metric = step.metricTypes
 					.map((type) => latestByType.get(type))
 					.find(Boolean);
+				const label =
+					step.key === "stt" && sttVendor
+						? `${formatVendorName(sttVendor)} STT`
+						: step.label;
 
 				return (
 					<div key={step.key} className="flex items-center gap-2">
@@ -50,7 +67,7 @@ export function QuickstartPipelineMetrics({
 							</span>
 						) : null}
 						<span className="rounded-md border border-border bg-transparent px-2 py-0.5 text-xs font-semibold leading-4 text-foreground shadow-sm">
-							{step.label}
+							{label}
 							{metric ? (
 								<span
 									className="ml-2 text-primary"
