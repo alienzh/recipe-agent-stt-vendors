@@ -64,6 +64,7 @@ class Agent:
         agent_uid: int,
         user_uid: int,
         vendor: Optional[str] = None,
+        keywords: Optional[list[str]] = None,
         output_audio_codec: Optional[str] = None,
     ) -> Dict[str, Any]:
         """Start the agent with the selected STT vendor."""
@@ -80,14 +81,21 @@ class Agent:
         # Build the selected STT vendor from the registry. For a BYO vendor
         # without its credentials this raises ValueError listing the missing
         # environment variables — validated here in start(), not __init__.
-        stt = build_vendor(selected)
+        if keywords is not None:
+            if selected != "ares":
+                raise ValueError("keywords are only supported for the ares STT vendor")
+            if not keywords or any(not isinstance(keyword, str) or not keyword.strip() for keyword in keywords):
+                raise ValueError("keywords must be a non-empty list of non-empty strings")
+            keywords = [keyword.strip() for keyword in keywords]
+
+        stt = build_vendor(selected, keywords=keywords)
         stt_params = stt.to_config().get("params") or {}
         keywords = stt_params.get("keywords") or []
         greeting = self.greeting
         if keywords:
             sample = ", ".join(keywords[:3])
             greeting = (
-                "Hi! To test hotword recognition, say a sentence containing "
+                "Hi! To test keyword recognition, say a sentence containing "
                 f"{sample}, then check the transcript."
             )
 

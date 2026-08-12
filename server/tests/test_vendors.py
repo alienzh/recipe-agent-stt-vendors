@@ -46,10 +46,11 @@ def test_byo_vendor_missing_creds_raises():
         raise AssertionError(f"{name} should raise when creds are absent")
 
 
-def test_ares_emits_keywords():
+def test_ares_emits_request_keywords():
     vendor = R.build_vendor(
         "ares",
-        {"STT_KEYWORDS": '["Agora", "Conversational AI", "RTC"]'},
+        {},
+        keywords=["Agora", "Conversational AI", "RTC"],
     )
 
     assert vendor.to_config() == {
@@ -58,25 +59,5 @@ def test_ares_emits_keywords():
     }
 
 
-def test_ares_omits_empty_keywords():
+def test_ares_omits_keywords_by_default():
     assert R.build_vendor("ares", {}).to_config() == {"vendor": "ares"}
-    assert R.build_vendor("ares", {"STT_KEYWORDS": "[]"}).to_config() == {
-        "vendor": "ares"
-    }
-
-
-@pytest.mark.parametrize(
-    "value",
-    [
-        "not-json",
-        '{"keyword": "Agora"}',
-        '["Agora", 7]',
-        '["Agora", ""]',
-    ],
-)
-def test_managed_hotword_vendors_reject_invalid_keywords(value):
-    with pytest.raises(
-        ValueError,
-        match="STT_KEYWORDS must be a JSON array of non-empty strings",
-    ):
-        R.build_vendor("ares", {"STT_KEYWORDS": value})

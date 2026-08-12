@@ -68,7 +68,6 @@ The web client uses `AgoraVoiceAI` to subscribe and surfaces events as
 | `STT_VENDOR` | `deepgram` | which STT vendor to build (see README Vendors table) |
 | `STT_MODEL` | per-vendor | optional model override (vendors with a model field) |
 | `STT_LANGUAGE` | per-vendor | optional language hint (documented per vendor) |
-| `STT_KEYWORDS` | — | optional JSON hotword array for Ares |
 | _vendor creds_ | — | required only for the selected BYO vendor (`required_env(STT_VENDOR)`) |
 
 ## Patterns

@@ -47,10 +47,6 @@ def test_start_constructs_real_agent_and_returns_shape(fake_env, monkeypatch):
 def test_start_passes_ares_keywords_to_agent(fake_env, monkeypatch):
     agent = _fresh_agent_module()
     captured = {}
-    monkeypatch.setenv(
-        "STT_KEYWORDS",
-        '["Agora", "Conversational AI", "RTC"]',
-    )
 
     class FakeSession:
         async def start(self):
@@ -71,6 +67,7 @@ def test_start_passes_ares_keywords_to_agent(fake_env, monkeypatch):
             agent_uid=111,
             user_uid=222,
             vendor="ares",
+            keywords=["Agora", "Conversational AI", "RTC"],
         )
     )
 
@@ -79,6 +76,26 @@ def test_start_passes_ares_keywords_to_agent(fake_env, monkeypatch):
         "params": {"keywords": ["Agora", "Conversational AI", "RTC"]},
     }
     assert captured["greeting"] == (
-        "Hi! To test hotword recognition, say a sentence containing "
+        "Hi! To test keyword recognition, say a sentence containing "
         "Agora, Conversational AI, RTC, then check the transcript."
     )
+
+
+def test_start_rejects_keywords_for_other_vendors(fake_env):
+    agent = _fresh_agent_module()
+    instance = agent.Agent()
+
+    try:
+        asyncio.run(
+            instance.start(
+                channel_name="ch",
+                agent_uid=111,
+                user_uid=222,
+                vendor="deepgram",
+                keywords=["Agora"],
+            )
+        )
+    except ValueError as exc:
+        assert str(exc) == "keywords are only supported for the ares STT vendor"
+    else:
+        raise AssertionError("keywords should be rejected for non-Ares vendors")

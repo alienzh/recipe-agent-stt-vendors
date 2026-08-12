@@ -82,6 +82,7 @@ class StartAgentRequest(BaseModel):
     rtcUid: int
     userUid: int
     vendor: Optional[str] = None   # which STT vendor to use (defaults to STT_VENDOR / deepgram)
+    keywords: Optional[list[str]] = None  # optional Ares keywords
     parameters: Optional[Dict[str, Any]] = None
 
 
@@ -152,7 +153,8 @@ async def list_vendors():
             "default": default,
             "vendors": [
                 {"name": name, "needs_key": registry.needs_key(name),
-                 "required_env": registry.required_env(name)}
+                 "required_env": registry.required_env(name),
+                 "supports_keywords": name == "ares"}
                 for name in registry.available()
             ],
         },
@@ -174,13 +176,18 @@ async def start_agent(request: StartAgentRequest):
         if request.parameters:
             output_audio_codec = request.parameters.get("output_audio_codec")
 
-        result = await agent.start(
-            channel_name=request.channelName,
-            agent_uid=request.rtcUid,
-            user_uid=request.userUid,
-            vendor=request.vendor,
-            output_audio_codec=output_audio_codec,
-        )
+        start_kwargs = {
+            "channel_name": request.channelName,
+            "agent_uid": request.rtcUid,
+            "user_uid": request.userUid,
+        }
+        if request.vendor is not None:
+            start_kwargs["vendor"] = request.vendor
+        if output_audio_codec is not None:
+            start_kwargs["output_audio_codec"] = output_audio_codec
+        if request.keywords is not None:
+            start_kwargs["keywords"] = request.keywords
+        result = await agent.start(**start_kwargs)
         return {"code": 0, "msg": "success", "data": result}
     except Exception as e:
         _log_route_error(

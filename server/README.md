@@ -27,8 +27,8 @@ The default `deepgram` vendor is Agora-managed (keyless), so the recipe is
 - `SPECS` maps each `STT_VENDOR` value to `VendorSpec(cls, creds, defaults, model_field)`.
 - `build_vendor(name, env)` builds the vendor, raising `ValueError` listing any
   missing credential env vars.
-- Ares reads the optional `STT_KEYWORDS` JSON array and sends it as
-  `params.keywords`.
+- The UI can send optional Ares keywords with `startAgent`; the backend sends
+  them as `params.keywords`.
 - `required_env(name)` / `available()` expose the registry.
 
 `agent.py` reads `STT_VENDOR` in `__init__` (no validation) and calls
@@ -61,7 +61,6 @@ Optional:
 | `STT_VENDOR` | `deepgram` | Which STT vendor to build (see the root README Vendors table) |
 | `STT_MODEL` | per-vendor | Optional model override (vendors with a model field) |
 | `STT_LANGUAGE` | per-vendor | Optional language hint (documented per vendor) |
-| `STT_KEYWORDS` | — | Optional JSON hotword array for Ares |
 | `AGENT_GREETING` | built-in | Optional opening line override |
 
 Selecting a BYO `STT_VENDOR` additionally requires that vendor's credential env

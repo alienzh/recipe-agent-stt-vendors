@@ -38,6 +38,7 @@ export interface VendorOption {
   name: string
   needs_key: boolean
   required_env: string[]
+  supports_keywords: boolean
 }
 
 export interface StartAgentResult {
@@ -58,8 +59,9 @@ export async function startAgent(
   rtcUid: number,
   userUid: number,
   vendor?: string,
+  keywords?: string[],
 ): Promise<StartAgentResult> {
-  const payload = { channelName, rtcUid, userUid, vendor }
+  const payload = { channelName, rtcUid, userUid, vendor, keywords }
 
   const response = await fetch(`${API_BASE_URL}/startAgent`, {
     method: 'POST',

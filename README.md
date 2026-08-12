@@ -38,10 +38,14 @@ Two ways to pick a vendor:
 🟢 = keyless default. The selected vendor's credentials are validated **when the
 agent starts** (not at construction), so `/get_config` always works key-less.
 
-Ares accepts optional hotwords through `STT_KEYWORDS`, formatted as
-a JSON array such as `["Agora", "Conversational AI", "RTC"]`. Hotwords can improve
-recognition of domain terms, but may reduce recognition accuracy for other words.
-The recipe does not impose a keyword count limit.
+### Ares keywords
+
+Keywords help improve ASR accuracy for specified terms, such as product names or
+technical vocabulary. To configure them, open the pre-call screen, select
+`Ares`, enable **Enable keywords**, enter comma-separated terms such as
+`Agora, Conversational AI, RTC`, and then start the conversation. The setting is
+optional, applies only to Ares, and is used for the current conversation. It may
+reduce recognition accuracy for other words.
 
 ### Sample code — how each vendor is wired
 
@@ -59,7 +63,7 @@ from agora_agent.agentkit.vendors import (
 # Deepgram — Agora-managed, key-less:
 DeepgramSTT(model="nova-3", language="en")
 
-# Ares - optional managed hotwords:
+# Ares - optional managed keywords:
 AresSTT(keywords=["Agora", "Conversational AI", "RTC"])
 
 # AssemblyAI — set ASSEMBLYAI_API_KEY:
@@ -139,7 +143,6 @@ credentials are needed — Deepgram STT is Agora-managed.
 | `STT_VENDOR` | | `deepgram` | Which STT vendor to use (see [Vendors](#vendors)) |
 | `STT_MODEL` | | per-vendor | Optional model override (vendors with a model field) |
 | `STT_LANGUAGE` | | per-vendor | Optional language hint (documented per vendor) |
-| `STT_KEYWORDS` | | — | Optional JSON array of hotwords for Ares |
 | `AGENT_GREETING` | | built-in | Optional opening line override |
 | _vendor creds_ | | — | Required only for the selected BYO vendor (see [Vendors](#vendors)) |
 
@@ -227,7 +230,6 @@ name → builder + required env. See [ARCHITECTURE.md](./ARCHITECTURE.md).
 | Problem | Fix |
 | --- | --- |
 | `STT vendor '<x>' requires environment variable(s): ...` at start | Set the listed env vars for that `STT_VENDOR` (see [Vendors](#vendors)), or switch back to `deepgram`. |
-| `STT_KEYWORDS must be a JSON array of non-empty strings` | Use JSON array syntax, for example `["Agora", "Conversational AI", "RTC"]`. |
 | No events appear in the timeline | Ensure `enable_rtm`, `enable_metrics`, `enable_error_message` are set (they are, by default in this recipe). |
 | Local calls fail under a global proxy (Clash, etc.) | Configure your proxy to send `127.0.0.1`, `localhost`, and RFC-1918 ranges DIRECT. |
 

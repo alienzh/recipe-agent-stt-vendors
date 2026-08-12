@@ -9,6 +9,7 @@ import { ErrorBoundary } from "@/components/ErrorBoundary";
 import { LoadingSkeleton } from "@/components/LoadingSkeleton";
 import { QuickstartPreCallCard } from "@/components/QuickstartPreCallCard";
 import { ShareButton } from "@/components/share-button";
+import { cn } from "@/lib/utils";
 import { getConfig, getVendors, startAgent, stopAgent } from "@/services/api";
 import type { VendorOption } from "@/services/api";
 import type { AgoraRenewalTokens, AgoraTokenData } from "@/types/conversation";
@@ -98,6 +99,9 @@ export default function LandingPage() {
 	const [vendors, setVendors] = useState<VendorOption[]>([]);
 	const [selectedVendor, setSelectedVendor] = useState<string>("");
 	const [activeSttVendor, setActiveSttVendor] = useState<string>();
+	const [keywordsEnabled, setKeywordsEnabled] = useState(false);
+	const [keywords, setKeywords] = useState("");
+	const supportsKeywords = vendors.find((vendor) => vendor.name === selectedVendor)?.supports_keywords ?? false;
 
 	useEffect(() => {
 		import("agora-rtc-react").catch(() => {});
@@ -119,6 +123,14 @@ export default function LandingPage() {
 		setAgentJoinError(false);
 
 		try {
+			const parsedKeywords = keywords
+				.split(",")
+				.map((keyword) => keyword.trim())
+				.filter(Boolean);
+			if (supportsKeywords && keywordsEnabled && parsedKeywords.length === 0) {
+				setError("Enter at least one keyword.");
+				return;
+			}
 			const config = await getConfig();
 			const appId = config.app_id;
 
@@ -128,6 +140,7 @@ export default function LandingPage() {
 					Number(config.agent_uid),
 					Number(config.uid),
 					selectedVendor || undefined,
+					keywordsEnabled && supportsKeywords ? parsedKeywords : undefined,
 				).catch((err) => {
 					console.error("Failed to start conversation with agent:", err);
 					setAgentJoinError(true);
@@ -208,18 +221,20 @@ export default function LandingPage() {
 	return (
 		<div className="relative flex h-dvh min-h-screen flex-col overflow-hidden bg-background text-foreground">
 			<div
-				className={`flex min-h-0 flex-1 flex-col ${
+				className={cn(
+					"flex min-h-0 flex-1 flex-col",
 					showConversation
-						? "items-stretch justify-start"
-						: "items-center justify-center"
-				}`}
+						? "items-stretch justify-start overflow-hidden"
+						: "items-center justify-center overflow-y-auto px-4 pb-24 pt-6",
+				)}
 			>
 				<div
-					className={`z-10 flex min-h-0 flex-1 flex-col ${
+					className={cn(
+						"z-10 flex flex-col",
 						showConversation
-							? "h-full w-full max-w-none items-stretch gap-0 px-0 text-left"
-							: "w-full max-w-none items-center justify-center px-4 text-center"
-					}`}
+							? "min-h-0 flex-1 h-full w-full max-w-none items-stretch gap-0 px-0 text-left"
+							: "w-full max-w-none flex-none items-center text-center",
+					)}
 				>
 					{!showConversation ? (
 						<QuickstartPreCallCard
@@ -229,6 +244,11 @@ export default function LandingPage() {
 							vendors={vendors}
 							selectedVendor={selectedVendor}
 							onVendorChange={setSelectedVendor}
+							supportsKeywords={supportsKeywords}
+							keywordsEnabled={keywordsEnabled}
+							onKeywordsEnabledChange={setKeywordsEnabled}
+							keywords={keywords}
+							onKeywordsChange={setKeywords}
 						/>
 					) : agoraData && rtmClient ? (
 						<>

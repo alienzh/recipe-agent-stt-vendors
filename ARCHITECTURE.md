@@ -51,8 +51,8 @@ EventTimeline + annotated transcript in the web UI
   applies the optional `STT_MODEL` override, then pulls each credential from the
   environment. A missing credential raises a clear `ValueError` listing the env
   vars — construction never fails on a missing required SDK field.
-- Ares parses the optional `STT_KEYWORDS` JSON array and serializes it as
-  `params.keywords` through the Python SDK.
+- The UI sends optional Ares keywords with the `startAgent` request and the
+  backend serializes them as `params.keywords` through the Python SDK.
 - `available()` / `required_env(name)` expose the registry for tests and docs.
 
 Entries with empty `creds` (`deepgram`, `ares`) are 🟢 keyless. The
