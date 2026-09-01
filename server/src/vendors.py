@@ -13,9 +13,8 @@ from typing import Callable, Dict, List, Optional, Tuple
 
 from agora_agent.agentkit.vendors import (
     DeepgramSTT, AresSTT, AssemblyAISTT, SpeechmaticsSTT, OpenAISTT,
-    MicrosoftSTT, GoogleSTT, AmazonSTT, SarvamSTT,
+    MicrosoftSTT, GoogleSTT, GeminiSTT, AmazonSTT, SarvamSTT,
 )
-from agora_agent.agentkit.preview import GeminiSTT, GeminiSTTModels
 
 CATEGORY = "STT"
 
@@ -83,10 +82,10 @@ def build_google(env):
 
 
 def build_gemini(env):
-    """Gemini transcription preview — set GEMINI_STT_API_KEY."""
+    """Gemini transcription — set GEMINI_STT_API_KEY."""
     return GeminiSTT(
         api_key=env["GEMINI_STT_API_KEY"],
-        model=_model(env, GeminiSTTModels.TRANSCRIBE_35_LIVE),
+        model=_model(env, "gemini-3.5-transcribe-live"),
     )
 
 

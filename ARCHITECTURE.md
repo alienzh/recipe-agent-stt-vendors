@@ -5,7 +5,7 @@ agent backend. The agent backend owns Agora tokens and agent lifecycle.
 
 The net-new work in this recipe is the **STT vendor switchboard** in
 `server/src/vendors.py`: a data-driven registry that builds ten STT vendors,
-including the preview Gemini Transcription provider. The agent reads `STT_VENDOR` and swaps only the STT leg of
+selected through `STT_VENDOR`. The agent swaps only the STT leg of
 the cascade; LLM and TTS stay on the proven keyless configs. The default vendor
 (`deepgram`) is Agora-managed (keyless), so no extra credentials are needed.
 
@@ -47,10 +47,7 @@ EventTimeline + annotated transcript in the web UI
 - `REGISTRY` maps each `STT_VENDOR` value to its builder and required credential
   environment variables.
 - `build_vendor(name, env)` validates the selected vendor's required credentials
-  before calling its SDK constructor. Gemini requires its API key, defaults to
-  `gemini-3.5-transcribe-live`, and leaves language unset for auto-detection.
-- The SDK automatically routes sessions using the preview Gemini vendor to its
-  preview endpoint; the Recipe does not configure a separate URL or header.
+  before calling its SDK constructor.
 - The UI sends optional Ares keywords with the `startAgent` request and the
   backend serializes them as the top-level `keywords` field through the Python
   SDK.

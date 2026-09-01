@@ -65,11 +65,6 @@ Optional:
 | `STT_LANGUAGE` | per-vendor | Optional language hint (documented per vendor) |
 | `AGENT_GREETING` | built-in | Optional opening line override |
 
-For Gemini Transcription preview, `GEMINI_STT_API_KEY` is required. The SDK
-defaults to `gemini-3.5-transcribe-live`, leaves language unset for automatic
-detection, and automatically routes the session to its preview endpoint. Use
-the common `STT_MODEL` variable only when a model override is needed.
-
 Selecting a BYO `STT_VENDOR` additionally requires that vendor's credential env
 vars (see `required_env` in `src/vendors.py` and the root README). These are
 validated when the agent starts, not at construction.
