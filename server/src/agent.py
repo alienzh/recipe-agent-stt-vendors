@@ -89,8 +89,7 @@ class Agent:
             keywords = [keyword.strip() for keyword in keywords]
 
         stt = build_vendor(selected, keywords=keywords)
-        stt_params = stt.to_config().get("params") or {}
-        keywords = stt_params.get("keywords") or []
+        keywords = stt.to_config().get("keywords") or []
         greeting = self.greeting
         if keywords:
             sample = ", ".join(keywords[:3])

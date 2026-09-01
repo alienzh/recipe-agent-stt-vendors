@@ -22,8 +22,9 @@ is a per-vendor switchboard (one readable `build_<vendor>` per vendor) selected 
 
 ## Vendor registry
 
-- `server/src/vendors.py` holds `CATEGORY = "STT"`, the `SPECS` table (all nine
-  A4.1 STT vendors), and `build_vendor()` / `required_env()` / `available()`.
+- `server/src/vendors.py` holds `CATEGORY = "STT"`, the `REGISTRY` (ten STT
+  vendors, including preview Gemini Transcription), and `build_vendor()` /
+  `required_env()` / `available()`.
 - `agent.py` reads `STT_VENDOR` in `__init__` (no validation) and calls
   `build_vendor(self.vendor)` for the STT leg **in `start()`** — BYO credential
   validation happens there, so `/get_config` stays key-less.
@@ -74,7 +75,7 @@ The web client uses `AgoraVoiceAI` to subscribe and surfaces events as
 
 - Keep the web client calling `/api/*`; hide backend placement behind Next rewrites.
 - Keep token generation and the App Certificate in `server/`.
-- Add or change STT vendors only in the `SPECS` table in `vendors.py`; the
+- Add or change STT vendors only in the `REGISTRY` in `vendors.py`; the
   framework (`build_vendor`/`required_env`/`available`) is shared across the
   sibling vendor recipes — keep it identical.
 - Validate vendor creds in `start()` via `build_vendor`, never in `__init__`.

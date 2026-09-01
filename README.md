@@ -32,6 +32,7 @@ Two ways to pick a vendor:
 | OpenAI | `openai` | `OPENAI_STT_API_KEY` | `gpt-4o-transcribe`, `en` |
 | Microsoft Azure | `microsoft` | `AZURE_SPEECH_KEY`, `AZURE_SPEECH_REGION` | `en-US` |
 | Google | `google` | `GOOGLE_APPLICATION_CREDENTIALS_JSON`, `GOOGLE_PROJECT_ID`, `GOOGLE_LOCATION` | `en-US` |
+| Gemini Transcription (preview) | `gemini` | `GEMINI_STT_API_KEY` | `gemini-3.5-transcribe-live`, auto-detect |
 | Amazon Transcribe | `amazon` | `AWS_ACCESS_KEY_ID`, `AWS_SECRET_ACCESS_KEY`, `AWS_REGION` | `en-US` |
 | Sarvam | `sarvam` | `SARVAM_API_KEY` | `en-IN` |
 
@@ -47,6 +48,16 @@ technical vocabulary. To configure them, open the pre-call screen, select
 optional, applies only to Ares, and is used for the current conversation. It may
 reduce recognition accuracy for other words.
 
+The backend passes these terms through the SDK's top-level Ares `keywords`
+configuration field.
+
+### Gemini Transcription (preview)
+
+Set `STT_VENDOR=gemini` and `GEMINI_STT_API_KEY`. The preview SDK defaults to
+`gemini-3.5-transcribe-live`; use the common `STT_MODEL` variable only when a
+model override is needed. Language is left unset for automatic detection. The
+SDK automatically routes Gemini sessions to its preview endpoint.
+
 ### Sample code — how each vendor is wired
 
 Every vendor is a small, copy-pasteable builder in [`server/src/vendors.py`](server/src/vendors.py)
@@ -59,6 +70,7 @@ from agora_agent.agentkit.vendors import (
     DeepgramSTT,
     MicrosoftSTT,
 )
+from agora_agent.agentkit.preview import GeminiSTT
 
 # Deepgram — Agora-managed, key-less:
 DeepgramSTT(model="nova-3", language="en")
@@ -77,6 +89,11 @@ MicrosoftSTT(
     key=env["AZURE_SPEECH_KEY"],
     region=env["AZURE_SPEECH_REGION"],
     language="en-US",
+)
+
+# Gemini Transcription preview — SDK supplies the default model:
+GeminiSTT(
+    api_key=env["GEMINI_STT_API_KEY"],
 )
 ```
 
@@ -194,8 +211,8 @@ name → builder + required env. See [ARCHITECTURE.md](./ARCHITECTURE.md).
 
 ## What You Get
 
-- A **vendor switchboard** for the STT leg: one `build_vendor()` over a `SPECS`
-  table covering all nine A4.1 STT vendors, selected via `STT_VENDOR`.
+- A **vendor switchboard** for the STT leg: one `build_vendor()` over a registry
+  covering ten STT vendors, selected via `STT_VENDOR`.
 - A **Next.js** web client (:3000) with a live **EventTimeline** (state, metric,
   error, turn events; reverse-chronological, capped at 50) and an **annotated
   transcript** that shows the current agent state in the header.

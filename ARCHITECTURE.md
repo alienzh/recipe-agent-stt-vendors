@@ -4,8 +4,8 @@ Two processes. The browser talks only to Next.js `/api/*`, which rewrites to the
 agent backend. The agent backend owns Agora tokens and agent lifecycle.
 
 The net-new work in this recipe is the **STT vendor switchboard** in
-`server/src/vendors.py`: a data-driven registry that builds any A4.1 STT vendor
-from a `SPECS` table. The agent reads `STT_VENDOR` and swaps only the STT leg of
+`server/src/vendors.py`: a data-driven registry that builds ten STT vendors,
+including the preview Gemini Transcription provider. The agent reads `STT_VENDOR` and swaps only the STT leg of
 the cascade; LLM and TTS stay on the proven keyless configs. The default vendor
 (`deepgram`) is Agora-managed (keyless), so no extra credentials are needed.
 
@@ -44,20 +44,21 @@ EventTimeline + annotated transcript in the web UI
 
 `server/src/vendors.py` is a **data-driven switchboard**:
 
-- `SPECS` maps each `STT_VENDOR` value to a `VendorSpec(cls, creds, defaults,
-  model_field)` — the SDK vendor class, its required credential env vars, the
-  SDK-verified default config, and which field `STT_MODEL` overrides.
-- `build_vendor(name, env)` fills every required SDK field from `defaults`,
-  applies the optional `STT_MODEL` override, then pulls each credential from the
-  environment. A missing credential raises a clear `ValueError` listing the env
-  vars — construction never fails on a missing required SDK field.
+- `REGISTRY` maps each `STT_VENDOR` value to its builder and required credential
+  environment variables.
+- `build_vendor(name, env)` validates the selected vendor's required credentials
+  before calling its SDK constructor. Gemini requires its API key, defaults to
+  `gemini-3.5-transcribe-live`, and leaves language unset for auto-detection.
+- The SDK automatically routes sessions using the preview Gemini vendor to its
+  preview endpoint; the Recipe does not configure a separate URL or header.
 - The UI sends optional Ares keywords with the `startAgent` request and the
-  backend serializes them as `params.keywords` through the Python SDK.
+  backend serializes them as the top-level `keywords` field through the Python
+  SDK.
 - `available()` / `required_env(name)` expose the registry for tests and docs.
 
 Entries with empty `creds` (`deepgram`, `ares`) are 🟢 keyless. The
 framework code is identical across the sibling vendor recipes; only `CATEGORY`
-and `SPECS` differ.
+and `REGISTRY` differ.
 
 ## Why creds are validated in start(), not __init__
 
