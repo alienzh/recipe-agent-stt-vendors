@@ -75,6 +75,7 @@ def test_gemini_uses_recipe_default_model():
         "params": {
             "api_key": "gemini-key",
             "model": "gemini-3.5-transcribe-live",
+            "sample_rate": 16000,
         },
     }
 
