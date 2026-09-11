@@ -146,6 +146,10 @@ async function main() {
     assert(body.code === 0, 'GET /api/get_config should preserve the FastAPI success payload')
 
     const data = body.data as Record<string, unknown> | undefined
+    assert(
+      data?.app_id === '0123456789abcdef0123456789abcdef',
+      'GET /api/get_config should use the smoke-test App ID',
+    )
     assert(data?.uid === '4321', 'GET /api/get_config should preserve the requested uid through FastAPI')
     assert(
       data?.channel_name === 'python-smoke',
