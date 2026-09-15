@@ -24,11 +24,12 @@ The default `deepgram` vendor is Agora-managed (keyless), so the recipe is
 
 `src/vendors.py` is a data-driven switchboard:
 
-- `SPECS` maps each `STT_VENDOR` value to `VendorSpec(cls, creds, defaults, model_field)`.
+- `REGISTRY` maps each `STT_VENDOR` value to its builder and required credential
+  environment variables.
 - `build_vendor(name, env)` builds the vendor, raising `ValueError` listing any
   missing credential env vars.
 - The UI can send optional Ares keywords with `startAgent`; the backend sends
-  them as `params.keywords`.
+  them as the top-level `keywords` field.
 - `required_env(name)` / `available()` expose the registry.
 
 `agent.py` reads `STT_VENDOR` in `__init__` (no validation) and calls

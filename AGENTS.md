@@ -9,7 +9,8 @@ is a per-vendor switchboard (one readable `build_<vendor>` per vendor) selected 
 - **`server/`** — Python FastAPI agent backend (:8000). Owns Agora token
   generation and agent session lifecycle. The STT leg is built from the
   per-vendor builder registry in `server/src/vendors.py`; default vendor `deepgram` is
-  Agora-managed (keyless). SDK: `agora-agents>=2.3.0` (`import agora_agent`).
+  Agora-managed (keyless). SDK: `agora-agents` (`import agora_agent`); the
+  dependency source is defined in `server/requirements.txt`.
 - **`web/`** — Next.js 16 / React 19 / TypeScript frontend (:3000): the
   `EventTimeline` and the annotated transcript.
 - Auth: Token007 from `AGORA_APP_ID` + `AGORA_APP_CERTIFICATE`.
@@ -22,8 +23,9 @@ is a per-vendor switchboard (one readable `build_<vendor>` per vendor) selected 
 
 ## Vendor registry
 
-- `server/src/vendors.py` holds `CATEGORY = "STT"`, the `SPECS` table (all nine
-  A4.1 STT vendors), and `build_vendor()` / `required_env()` / `available()`.
+- `server/src/vendors.py` holds `CATEGORY = "STT"`, the `REGISTRY` (ten STT
+  vendors), and `build_vendor()` /
+  `required_env()` / `available()`.
 - `agent.py` reads `STT_VENDOR` in `__init__` (no validation) and calls
   `build_vendor(self.vendor)` for the STT leg **in `start()`** — BYO credential
   validation happens there, so `/get_config` stays key-less.
@@ -74,7 +76,7 @@ The web client uses `AgoraVoiceAI` to subscribe and surfaces events as
 
 - Keep the web client calling `/api/*`; hide backend placement behind Next rewrites.
 - Keep token generation and the App Certificate in `server/`.
-- Add or change STT vendors only in the `SPECS` table in `vendors.py`; the
+- Add or change STT vendors only in the `REGISTRY` in `vendors.py`; the
   framework (`build_vendor`/`required_env`/`available`) is shared across the
   sibling vendor recipes — keep it identical.
 - Validate vendor creds in `start()` via `build_vendor`, never in `__init__`.

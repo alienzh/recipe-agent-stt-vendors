@@ -32,6 +32,7 @@ Two ways to pick a vendor:
 | OpenAI | `openai` | `OPENAI_STT_API_KEY` | `gpt-4o-transcribe`, `en` |
 | Microsoft Azure | `microsoft` | `AZURE_SPEECH_KEY`, `AZURE_SPEECH_REGION` | `en-US` |
 | Google | `google` | `GOOGLE_APPLICATION_CREDENTIALS_JSON`, `GOOGLE_PROJECT_ID`, `GOOGLE_LOCATION` | `en-US` |
+| Gemini Transcription | `gemini` | `GEMINI_STT_API_KEY` | `gemini-3.5-transcribe-live`, language unset |
 | Amazon Transcribe | `amazon` | `AWS_ACCESS_KEY_ID`, `AWS_SECRET_ACCESS_KEY`, `AWS_REGION` | `en-US` |
 | Sarvam | `sarvam` | `SARVAM_API_KEY` | `en-IN` |
 
@@ -46,6 +47,9 @@ technical vocabulary. To configure them, open the pre-call screen, select
 `Agora, Conversational AI, RTC`, and then start the conversation. The setting is
 optional, applies only to Ares, and is used for the current conversation. It may
 reduce recognition accuracy for other words.
+
+The backend passes these terms through the SDK's top-level Ares `keywords`
+configuration field.
 
 ### Sample code — how each vendor is wired
 
@@ -194,8 +198,8 @@ name → builder + required env. See [ARCHITECTURE.md](./ARCHITECTURE.md).
 
 ## What You Get
 
-- A **vendor switchboard** for the STT leg: one `build_vendor()` over a `SPECS`
-  table covering all nine A4.1 STT vendors, selected via `STT_VENDOR`.
+- A **vendor switchboard** for the STT leg: one `build_vendor()` over a registry
+  covering ten STT vendors, selected via `STT_VENDOR`.
 - A **Next.js** web client (:3000) with a live **EventTimeline** (state, metric,
   error, turn events; reverse-chronological, capped at 50) and an **annotated
   transcript** that shows the current agent state in the header.

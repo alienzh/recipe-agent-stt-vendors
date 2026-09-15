@@ -1,6 +1,7 @@
 import os
 import sys
 
+import dotenv
 import uvicorn
 
 
@@ -32,6 +33,9 @@ def main():
     if src_root not in sys.path:
         sys.path.insert(0, src_root)
 
+    # Smoke tests inject deterministic values through the child-process env.
+    # Do not let server/.env.local override those values on import.
+    dotenv.load_dotenv = lambda *args, **kwargs: False
     import server as server_module
 
     server_module.agent = FakeAgent()

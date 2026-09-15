@@ -16,6 +16,7 @@ EXPECTED_VENDOR = {
     "speechmatics": "speechmatics",
     "microsoft": "microsoft",
     "google": "google",
+    "gemini": "gemini",
     "amazon": "amazon",
     "sarvam": "sarvam",
 }
@@ -55,9 +56,37 @@ def test_ares_emits_request_keywords():
 
     assert vendor.to_config() == {
         "vendor": "ares",
-        "params": {"keywords": ["Agora", "Conversational AI", "RTC"]},
+        "keywords": ["Agora", "Conversational AI", "RTC"],
     }
 
 
 def test_ares_omits_keywords_by_default():
     assert R.build_vendor("ares", {}).to_config() == {"vendor": "ares"}
+
+
+def test_gemini_uses_recipe_default_model():
+    config = R.build_vendor(
+        "gemini",
+        {"GEMINI_STT_API_KEY": "gemini-key"},
+    ).to_config()
+
+    assert config == {
+        "vendor": "gemini",
+        "params": {
+            "api_key": "gemini-key",
+            "model": "gemini-3.5-transcribe-live",
+            "sample_rate": 16000,
+        },
+    }
+
+
+def test_gemini_accepts_common_model_override():
+    config = R.build_vendor(
+        "gemini",
+        {
+            "GEMINI_STT_API_KEY": "gemini-key",
+            "STT_MODEL": "gemini-custom-model",
+        },
+    ).to_config()
+
+    assert config["params"]["model"] == "gemini-custom-model"

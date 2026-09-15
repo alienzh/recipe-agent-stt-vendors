@@ -13,7 +13,7 @@ from typing import Callable, Dict, List, Optional, Tuple
 
 from agora_agent.agentkit.vendors import (
     DeepgramSTT, AresSTT, AssemblyAISTT, SpeechmaticsSTT, OpenAISTT,
-    MicrosoftSTT, GoogleSTT, AmazonSTT, SarvamSTT,
+    MicrosoftSTT, GoogleSTT, GeminiSTT, AmazonSTT, SarvamSTT,
 )
 
 CATEGORY = "STT"
@@ -81,6 +81,14 @@ def build_google(env):
     )
 
 
+def build_gemini(env):
+    """Gemini transcription — set GEMINI_STT_API_KEY."""
+    return GeminiSTT(
+        api_key=env["GEMINI_STT_API_KEY"],
+        model=_model(env, "gemini-3.5-transcribe-live"),
+    )
+
+
 def build_amazon(env):
     """Amazon Transcribe — set AWS_ACCESS_KEY_ID, AWS_SECRET_ACCESS_KEY, AWS_REGION."""
     return AmazonSTT(
@@ -109,6 +117,7 @@ REGISTRY: Dict[str, Tuple[Callable, List[str]]] = {
     "openai":       (build_openai,       ["OPENAI_STT_API_KEY"]),
     "microsoft":    (build_microsoft,    ["AZURE_SPEECH_KEY", "AZURE_SPEECH_REGION"]),
     "google":       (build_google,       ["GOOGLE_APPLICATION_CREDENTIALS_JSON", "GOOGLE_PROJECT_ID", "GOOGLE_LOCATION"]),
+    "gemini":       (build_gemini,       ["GEMINI_STT_API_KEY"]),
     "amazon":       (build_amazon,       ["AWS_ACCESS_KEY_ID", "AWS_SECRET_ACCESS_KEY", "AWS_REGION"]),
     "sarvam":       (build_sarvam,       ["SARVAM_API_KEY"]),
 }

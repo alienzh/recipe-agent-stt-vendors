@@ -105,9 +105,7 @@ export function ConversationErrorCard({ issue }: ConversationErrorCardProps) {
       <div className='font-medium text-destructive'>
         Conversation AI Engine Error: {transportCode}
       </div>
-      {normalizedMessage !== issue.message && (
-        <div className='text-foreground'>{normalizedMessage}</div>
-      )}
+      <div className='text-foreground'>{normalizedMessage}</div>
       {cta && <div className='text-[11px] text-destructive/90'>{cta}</div>}
       {showRaw && (
         <div className='mt-2 break-words border-t border-destructive/20 pt-2 text-muted-foreground'>
