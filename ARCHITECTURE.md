@@ -4,7 +4,7 @@ Two processes. The browser talks only to Next.js `/api/*`, which rewrites to the
 agent backend. The agent backend owns Agora tokens and agent lifecycle.
 
 The net-new work in this recipe is the **STT vendor switchboard** in
-`server/src/vendors.py`: a data-driven registry that builds ten STT vendors,
+`server/src/vendors.py`: a data-driven registry that builds eleven STT vendors,
 selected through `STT_VENDOR`. The agent swaps only the STT leg of
 the cascade; LLM and TTS stay on the proven keyless configs. The default vendor
 (`deepgram`) is Agora-managed (keyless), so no extra credentials are needed.
@@ -24,7 +24,7 @@ Agent backend (server/, :8000)
   │    llm = OpenAI(gpt-4o-mini)
   │    tts = MiniMaxTTS(speech_2_6_turbo, English_captivating_female1)
   │    parameters: data_channel=rtm, enable_metrics=true,
-  │                enable_error_message=true
+  │                enable_error_message=true, enable_flexible=true
   │    advanced_features: enable_rtm=true
   ▼
 Agora ConvoAI Cloud

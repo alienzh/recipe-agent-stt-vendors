@@ -13,7 +13,7 @@ from typing import Callable, Dict, List, Optional, Tuple
 
 from agora_agent.agentkit.vendors import (
     DeepgramSTT, AresSTT, AssemblyAISTT, SpeechmaticsSTT, OpenAISTT,
-    MicrosoftSTT, GoogleSTT, GeminiSTT, AmazonSTT, SarvamSTT,
+    MicrosoftSTT, GoogleSTT, GeminiSTT, AmazonSTT, SarvamSTT, SmallestAISTT,
 )
 
 CATEGORY = "STT"
@@ -107,6 +107,14 @@ def build_sarvam(env):
     )
 
 
+def build_smallestai(env):
+    """Smallest.ai — set SMALLEST_API_KEY (smallest.ai)."""
+    return SmallestAISTT(
+        api_key=env["SMALLEST_API_KEY"],
+        language=env.get("STT_LANGUAGE") or "en-US",
+    )
+
+
 # --- registry: name -> (builder, required env vars) -------------------------
 # An empty env list means the vendor is Agora-managed / key-less.
 REGISTRY: Dict[str, Tuple[Callable, List[str]]] = {
@@ -120,6 +128,7 @@ REGISTRY: Dict[str, Tuple[Callable, List[str]]] = {
     "gemini":       (build_gemini,       ["GEMINI_STT_API_KEY"]),
     "amazon":       (build_amazon,       ["AWS_ACCESS_KEY_ID", "AWS_SECRET_ACCESS_KEY", "AWS_REGION"]),
     "sarvam":       (build_sarvam,       ["SARVAM_API_KEY"]),
+    "smallestai":   (build_smallestai,   ["SMALLEST_API_KEY"]),
 }
 
 
