@@ -23,7 +23,7 @@ is a per-vendor switchboard (one readable `build_<vendor>` per vendor) selected 
 
 ## Vendor registry
 
-- `server/src/vendors.py` holds `CATEGORY = "STT"`, the `REGISTRY` (ten STT
+- `server/src/vendors.py` holds `CATEGORY = "STT"`, the `REGISTRY` (eleven STT
   vendors), and `build_vendor()` /
   `required_env()` / `available()`.
 - `agent.py` reads `STT_VENDOR` in `__init__` (no validation) and calls
@@ -36,6 +36,7 @@ is a per-vendor switchboard (one readable `build_<vendor>` per vendor) selected 
 
 The agent is started with:
 - `audio_scenario = "chorus"` — web client → ultra-low-latency chorus profile
+- `enable_flexible = True` — enables the Engine path used by Smallest AI STT
 - `data_channel = "rtm"` — routes all events over RTM
 - `enable_metrics = True` — per-stage latency metrics
 - `enable_error_message = True` — agent + message errors

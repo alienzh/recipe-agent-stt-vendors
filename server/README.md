@@ -20,6 +20,10 @@ surface:
 The default `deepgram` vendor is Agora-managed (keyless), so the recipe is
 **zero-key** out of the box. There is **no separate `llm/` service**.
 
+The agent sets `parameters.enable_flexible=true` for Smallest AI STT
+compatibility with the Engine. The `smallestai` vendor requires
+`SMALLEST_API_KEY` and defaults to `STT_LANGUAGE=en-US`.
+
 ## The vendor registry
 
 `src/vendors.py` is a data-driven switchboard:

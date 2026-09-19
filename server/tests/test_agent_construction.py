@@ -99,3 +99,28 @@ def test_start_rejects_keywords_for_other_vendors(fake_env):
         assert str(exc) == "keywords are only supported for the ares STT vendor"
     else:
         raise AssertionError("keywords should be rejected for non-Ares vendors")
+
+
+def test_smallestai_session_enables_flexible_engine_path(fake_env, monkeypatch):
+    monkeypatch.setenv("SMALLEST_API_KEY", "smallest-key")
+    monkeypatch.delenv("STT_LANGUAGE", raising=False)
+    agent = _fresh_agent_module()
+    captured = {}
+
+    class FakeSession:
+        async def start(self):
+            return "test-smallest-agent-id"
+
+    def fake_create_async_session(self, **kwargs):
+        captured["stt"] = self.stt
+        captured["parameters"] = self.parameters
+        return FakeSession()
+
+    from agora_agent.agentkit import Agent as AgoraAgent
+    monkeypatch.setattr(AgoraAgent, "create_async_session", fake_create_async_session)
+
+    asyncio.run(agent.Agent().start("ch", 111, 222, vendor="smallestai"))
+
+    assert captured["stt"]["vendor"] == "smallestai"
+    assert captured["stt"]["params"]["language"] == "en-US"
+    assert captured["parameters"]["enable_flexible"] is True

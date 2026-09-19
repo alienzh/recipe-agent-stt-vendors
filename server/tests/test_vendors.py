@@ -19,6 +19,7 @@ EXPECTED_VENDOR = {
     "gemini": "gemini",
     "amazon": "amazon",
     "sarvam": "sarvam",
+    "smallestai": "smallestai",
 }
 
 
@@ -90,3 +91,33 @@ def test_gemini_accepts_common_model_override():
     ).to_config()
 
     assert config["params"]["model"] == "gemini-custom-model"
+
+
+def test_smallestai_uses_api_key_and_language_override():
+    config = R.build_vendor(
+        "smallestai",
+        {
+            "SMALLEST_API_KEY": "smallest-key",
+            "STT_LANGUAGE": "hi",
+        },
+    ).to_config()
+
+    assert config == {
+        "vendor": "smallestai",
+        "params": {
+            "api_key": "smallest-key",
+            "language": "hi",
+        },
+    }
+
+
+def test_smallestai_defaults_to_en_us():
+    config = R.build_vendor(
+        "smallestai",
+        {"SMALLEST_API_KEY": "smallest-key"},
+    ).to_config()
+
+    assert config["params"] == {
+        "api_key": "smallest-key",
+        "language": "en-US",
+    }
